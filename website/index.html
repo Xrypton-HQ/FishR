@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FishR - Discord Fishing Economy Bot</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&amp;display=swap');
+
+        :root {
+            --win-green: #3cda56;
+            --dark-green: #1a6827;
+            --win-black: #0f0f0f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif, Arial, Helvetica, sans-serif;
+            background: #1c1c1c;
+            color: #dadada;
+            line-height: 1.45;
+            cursor: default;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                linear-gradient(#1f2b1f 1px, transparent 1px),
+                linear-gradient(90deg, #1f2b1f 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.18;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 400;
+            margin: 0;
+        }
+
+        h1, h2, h3 {
+            background: linear-gradient(to bottom, #bebebe 0%, #777 3%, #232323 55%, #000 55%, #161616 98%, #000 100%);
+            box-shadow: rgba(0,0,0,.3) 0 3px 8px;
+            border-bottom: 1px solid #000;
+            border-right: 1px solid #4b4b4b;
+            border-left: 1px solid #4b4b4b;
+            padding: 4px 12px 6px;
+            display: flex;
+            align-items: center;
+            font-size: 14.5px;
+            color: #eee;
+            text-shadow: 0 1px 1px #000;
+        }
+
+        h1 { font-size: 17px; }
+        h2, h3 { font-size: 14.6px; }
+
+        a {
+            color: #3cda56;
+            text-decoration: none;
+        }
+        a:hover { text-decoration: underline; color: #57fa6f; }
+
+        .retro-btn {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(to bottom, #fff 0%, #82f577 3%, #32912a 40%, #185815 55%, #0b3112 55%, #1a5c1e 100%);
+            border: 1px solid #000;
+            color: #fff;
+            padding: 4px 16px 6px;
+            font-size: 13px;
+            border-radius: 3px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,.4);
+            cursor: pointer;
+            transition: all .1s;
+            text-shadow: 0 1px 1px #000;
+        }
+        .retro-btn:hover {
+            background: linear-gradient(to bottom, #fff 0%, #9efd96 3%, #32912a 40%, #185815 55%, #0b3112 55%, #47e951 100%);
+            transform: translateY(-1px);
+        }
+        .retro-btn:active {
+            transform: translateY(1px);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.3);
+        }
+
+        .glass {
+            background: linear-gradient(to bottom, rgba(66,66,66,.25), rgba(39,39,39,.15));
+            border: 1px solid rgba(236,242,249,.35);
+            border-radius: 6px;
+            box-shadow: 2px 2px 4px rgba(0,0,0,.6), inset -1px -1px 0 rgba(255,255,255,.12);
+            padding: 10px;
+        }
+
+        .styled-container {
+            background: rgba(27,27,27,.88);
+            padding: 10px;
+            box-shadow: rgba(0,0,0,.3) 0 3px 8px;
+            margin-bottom: 12px;
+        }
+
+        .nav-active {
+            background: linear-gradient(to bottom, rgba(255,255,255,.25) 0%, rgba(117,117,117,.2) 20%, rgba(92,92,92,.2) 40%, rgba(29,73,23,.3) 40%, rgba(43,240,36,.7) 100%) !important;
+            color: #57fa6f !important;
+            transform: scale(1.02);
+            border: 1px solid #0f0f0f;
+        }
+
+        .nav-inactive {
+            background: linear-gradient(to bottom, rgba(255,255,255,.2) 0%, rgba(117,117,117,.15) 20%, rgba(92,92,92,.15) 60%, rgba(0,0,0,.3) 60%, rgba(41,41,41,.3) 100%);
+            border: 1px solid #0f0f0f;
+        }
+
+        .nav-inactive:hover {
+            background: linear-gradient(to bottom, rgba(255,255,255,.25) 0%, rgba(117,117,117,.22) 20%, rgba(92,92,92,.2) 50%, rgba(43,43,43,.3) 50%, rgba(161,161,161,.3) 100%);
+            transform: scale(1.02);
+        }
+
+        .section-header {
+            margin-bottom: 8px;
+        }
+
+        .fishr-window {
+            max-width: 980px;
+            margin: 18px auto;
+            background: #232323;
+            border: 1px solid #4b4b4b;
+            box-shadow: 0 14px 28px rgba(0,0,0,.45), 0 10px 10px rgba(0,0,0,.4);
+            border-radius: 8px 8px 4px 4px;
+            overflow: hidden;
+        }
+
+        .window-header {
+            background: linear-gradient(180deg, rgba(172,172,172,.95) 0%, rgba(71,71,71,.95) 20%, rgba(19,19,19,.95) 40%, rgba(7,7,7,.96) 100%);
+            border-bottom: 1px solid #4e4e4e;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .window-header .title {
+            color: #fff;
+            font-size: 19px;
+            font-weight: 600;
+            letter-spacing: -.3px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .logo-fish {
+            font-size: 28px;
+            line-height: 1;
+            filter: drop-shadow(0 1px 1px #000);
+        }
+
+        .motto {
+            color: #c9c9c9;
+            font-size: 13px;
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .window-body {
+            display: flex;
+            background: #1f1f1f;
+        }
+
+        .sidebar {
+            width: 158px;
+            background: linear-gradient(to bottom, rgba(26,26,26,.95), rgba(22,22,22,.95) 95%);
+            border-right: 1px solid #4b4b4b;
+            padding: 10px 8px 14px;
+            min-height: 620px;
+            font-size: 13px;
+        }
+
+        .nav-category {
+            background: linear-gradient(to bottom, rgba(80,80,80,.18), rgba(39,39,39,.1));
+            border: 1px solid rgba(236,242,249,.22);
+            border-radius: 5px;
+            padding: 3px;
+            margin-bottom: 5px;
+            box-shadow: 2px 2px 3px rgba(0,0,0,.7);
+        }
+
+        .nav-category-title {
+            background: linear-gradient(to bottom, #fff 0%, rgba(129,129,129,.75) 3%, rgba(56,56,56,.75) 50%, rgba(27,27,27,.75) 50%);
+            border: 1px solid #000;
+            border-radius: 2px;
+            color: #f7f4f4;
+            text-align: center;
+            padding: 1px 0;
+            font-size: 12.4px;
+            margin-bottom: 3px;
+            box-shadow: 0 1px 0 #000;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            margin: 1px 2px;
+            border-radius: 4px;
+            font-size: 12.6px;
+            color: #ddd;
+            transition: all .1s;
+            cursor: pointer;
+        }
+
+        .nav-link span {
+            flex: 1;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 12px 14px 16px;
+            height: 620px;
+            overflow-y: auto;
+            background: rgba(39,39,39,.45);
+            border-bottom-right-radius: 3px;
+        }
+
+        .main-content::-webkit-scrollbar {
+            width: 12px;
+            background: #1a1a1a;
+        }
+        .main-content::-webkit-scrollbar-thumb {
+            background: #2a5e2f;
+            border: 1px solid #3b3b3b;
+        }
+
+        .retro-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: #222;
+        }
+        .retro-table td, .retro-table th {
+            border: 1px solid #3a3a3a;
+            padding: 5px 8px;
+        }
+        .retro-table th {
+            background: #2b2b2b;
+            color: #9ccc9c;
+            font-weight: 500;
+        }
+
+        .status-bar {
+            background: linear-gradient(#2d2d2d, #1f1f1f);
+            border-top: 1px solid #4b4b4b;
+            padding: 3px 12px;
+            font-size: 11.5px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .fish-demo {
+            background: #111;
+            border: 2px solid #3a3a3a;
+            padding: 14px;
+            text-align: center;
+            border-radius: 3px;
+            margin: 8px 0;
+        }
+
+        .catch-result {
+            font-size: 15px;
+            margin-top: 8px;
+            min-height: 22px;
+        }
+
+        .market-display {
+            font-family: monospace;
+            font-size: 42px;
+            line-height: 1;
+            color: #3cda56;
+            text-shadow: 0 0 6px #1a6827;
+            font-weight: 700;
+        }
+
+        .section {
+            margin-bottom: 18px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 8px;
+        }
+
+        .feature-item {
+            background: #1e1e1e;
+            border: 1px solid #3a3a3a;
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        .command-item {
+            font-family: monospace;
+            background: #1a1a1a;
+            padding: 3px 6px;
+            border: 1px solid #333;
+            margin: 2px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12.5px;
+        }
+
+        .command-item:hover {
+            background: #2a3a2a;
+        }
+
+        .win-text {
+            text-shadow: 0 0 2px #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="fishr-window">
+        <!-- Header -->
+        <div class="window-header">
+            <div class="title">
+                <span class="logo-fish">🎣</span>
+                <span>FishR</span>
+                <span class="motto">— Your go-to Discord fishing &amp; economy bot</span>
+            </div>
+            
+            <div style="display:flex; gap:6px; align-items:center;">
+                <button onclick="addToDiscord()" class="retro-btn" style="font-size:12px; padding:3px 11px;">Add to Discord</button>
+                <button onclick="joinSupport()" class="retro-btn" style="font-size:12px; padding:3px 11px; background:linear-gradient(#fff,#82f577,#32912a,#185815);">Support</button>
+            </div>
+        </div>
+
+        <div class="window-body">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar">
+                <div class="nav-category">
+                    <div class="nav-category-title">Main Menu</div>
+                    <div onclick="navigateTo('home')" class="nav-link nav-active" id="nav-home">
+                        <span>🏠 Home</span>
+                    </div>
+                    <div onclick="navigateTo('features')" class="nav-link nav-inactive" id="nav-features">
+                        <span>🎣 Features</span>
+                    </div>
+                    <div onclick="navigateTo('demo')" class="nav-link nav-inactive" id="nav-demo">
+                        <span>🕹️ Play Demo</span>
+                    </div>
+                </div>
+
+                <div class="nav-category">
+                    <div class="nav-category-title">Tools</div>
+                    <div onclick="navigateTo('commands')" class="nav-link nav-inactive" id="nav-commands">
+                        <span>📋 Commands</span>
+                    </div>
+                    <div onclick="navigateTo('market')" class="nav-link nav-inactive" id="nav-market">
+                        <span>📈 Market</span>
+                    </div>
+                </div>
+
+                <div class="nav-category">
+                    <div class="nav-category-title">Community</div>
+                    <div onclick="addToDiscord()" class="nav-link nav-inactive">
+                        <span>⬇️ Invite Bot</span>
+                    </div>
+                    <div onclick="joinSupport()" class="nav-link nav-inactive">
+                        <span>💬 Support Server</span>
+                    </div>
+                    <div onclick="window.open('https://top.gg/bot/1447869784937988201','_blank')" class="nav-link nav-inactive">
+                        <span>⭐ Vote on top.gg</span>
+                    </div>
+                </div>
+
+                <div style="margin-top:14px; padding:0 4px; font-size:10.5px; color:#666; line-height:1.3;">
+                    FishR v1.8.4<br>
+                    1,420 servers • 187k users
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="main-content" id="main-content">
+                <!-- HOME SECTION -->
+                <div id="panel-home">
+                    <h2 class="section-header">Welcome to FishR</h2>
+                    
+                    <div class="glass" style="padding:14px 16px; margin-bottom:14px;">
+                        <p style="font-size:14.2px; line-height:1.55;">
+                            <strong>FishR</strong> is the ultimate Discord economy and fishing bot. 
+                            Cast your line, catch fish, sell at dynamic market prices, rob your friends, 
+                            complete high-paying jobs, and collect random treasure chests.
+                        </p>
+                        <p style="margin-top:8px; font-size:13px; color:#9ccc9c;">
+                            Fast • Fun • Full of surprises. Perfect for communities that love casual games and friendly competition.
+                        </p>
+                    </div>
+
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button onclick="navigateTo('demo')" class="retro-btn">🎣 Try Fishing Demo</button>
+                        <button onclick="navigateTo('commands')" class="retro-btn">View All Commands</button>
+                        <button onclick="addToDiscord()" class="retro-btn">Add FishR to Server</button>
+                    </div>
+
+                    <div style="margin-top:16px; font-size:11.5px; color:#777;">
+                        Developed by voby7 • Support: discord.gg/YWG5ryEZGS
+                    </div>
+                </div>
+
+                <!-- FEATURES -->
+                <div id="panel-features" style="display:none;">
+                    <h2 class="section-header">Features</h2>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <strong>🎣 Fishing Minigame</strong><br>
+                            <span style="font-size:12px;">Cast, wait, and reel in fish. Rare <span style="color:#f59e0b">Fish Madness</span> 4× boost available.</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>📈 Dynamic Economy</strong><br>
+                            <span style="font-size:12px;">Fish prices change every 5 minutes. Time your sells for maximum profit.</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>🏦 Bank &amp; Crime</strong><br>
+                            <span style="font-size:12px;">Deposit safely or attempt to steal from other users. High risk, high reward.</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>🧠 Score Farm Jobs</strong><br>
+                            <span style="font-size:12px;">Math-based high paying jobs. Think fast under pressure.</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>📦 Treasure Chests</strong><br>
+                            <span style="font-size:12px;">Random chests spawn in busy channels. First to claim wins coins + fish.</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>🛒 Shop &amp; Upgrades</strong><br>
+                            <span style="font-size:12px;">Buy better rods, frenzy boosts and permanent multipliers.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DEMO -->
+                <div id="panel-demo" style="display:none;">
+                    <h2 class="section-header">Fishing Simulator</h2>
+                    
+                    <div class="fish-demo">
+                        <div style="margin-bottom:8px; font-size:13px; color:#888;">Click the button to cast your line</div>
+                        
+                        <button onclick="castRetroLine()" class="retro-btn" style="font-size:15px; padding:8px 28px;">🎣 CAST LINE</button>
+                        
+                        <div id="retro-fish-state" style="margin-top:14px; font-size:15px; min-height:26px; color:#3cda56;">
+                            Ready to fish...
+                        </div>
+                        
+                        <div id="retro-catch" class="catch-result" style="color:#ddd; font-size:14px;"></div>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        <h3 style="background:none; box-shadow:none; border:none; font-size:13px; padding:0; color:#aaa;">Live Market Preview</h3>
+                        <div style="display:flex; align-items:baseline; gap:12px; margin-top:4px;">
+                            <div>
+                                <span style="font-size:11px;">Current Price</span><br>
+                                <span id="retro-market-price" class="market-display">18</span>
+                                <span style="font-size:11px; color:#777;">credits/fish</span>
+                            </div>
+                            <div>
+                                <button onclick="retroFluctuateMarket()" class="retro-btn" style="padding:4px 11px; font-size:11px;">Simulate Price Change</button>
+                                <div id="retro-market-pct" style="margin-top:3px; font-size:11px; color:#3cda56;">+12%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COMMANDS -->
+                <div id="panel-commands" style="display:none;">
+                    <h2 class="section-header">Available Commands <span style="font-size:10px; color:#666; font-weight:400;">(live from Redis • bot-synced)</span></h2>
+                    
+                    <div style="margin-bottom:8px;">
+                        <input id="retro-search" type="text" placeholder="Filter commands..." 
+                               style="width:100%; background:#111; border:1px solid #444; color:#ddd; padding:5px 8px; font-size:13px;"
+                               onkeyup="filterRetroCommands()">
+                    </div>
+
+                    <div id="retro-commands-list" style="font-size:12.5px; max-height:380px; overflow:auto;">
+                        <!-- populated by JS -->
+                    </div>
+                </div>
+
+                <!-- MARKET -->
+                <div id="panel-market" style="display:none;">
+                    <h2 class="section-header">Fish Market</h2>
+                    
+                    <div class="glass" style="text-align:center; padding:20px;">
+                        <div style="font-size:12px; color:#888;">CURRENT MARKET RATE</div>
+                        <div id="big-market-price" class="market-display" style="font-size:58px;">18</div>
+                        <div style="color:#3cda56; margin-top:-6px;">credits per fish</div>
+                        
+                        <div style="margin-top:12px;">
+                            <button onclick="retroFluctuateMarket(true)" class="retro-btn">Force Market Refresh</button>
+                        </div>
+                        
+                        <div style="margin-top:14px; font-size:12px; color:#666;">
+                            Prices update automatically every 5 minutes in Discord.<br>
+                            Sell your fish when the market is high!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div>FishR • Ready • 1,420 servers connected</div>
+            <div style="font-size:10.5px;">Client ID: 1447869784937988201</div>
+        </div>
+    </div>
+
+    <script>
+        // Commands loaded from the Vercel + Redis API (synced by the bot)
+        let cachedCommandsData = null;
+
+        let currentPanel = 'home';
+        let currentMarketPrice = 18;
+
+        async function fetchCommandsFromAPI() {
+            try {
+                const res = await fetch('/api/commands');
+                if (!res.ok) throw new Error('API error');
+                const json = await res.json();
+                cachedCommandsData = json;
+                return json;
+            } catch (e) {
+                console.warn('Could not fetch commands from Redis API, using fallback', e);
+                // Fallback so the demo still works offline
+                cachedCommandsData = {
+                    type: 'flat',
+                    data: [
+                        {cmd: ".fish", desc: "Go fishing and catch fish", cat: "Fishing"},
+                        {cmd: ".sell", desc: "Sell all fish at current market price", cat: "Fishing"},
+                        {cmd: ".market", desc: "View live fish market prices", cat: "Economy"},
+                        {cmd: ".balance", desc: "Check your credits and fish", cat: "Economy"},
+                        {cmd: ".daily", desc: "Claim daily credits", cat: "Economy"},
+                        {cmd: ".bank", desc: "Open your bank vault", cat: "Banking"},
+                        {cmd: ".steal", desc: "Attempt to rob a user", cat: "Crime"},
+                        {cmd: ".shop", desc: "Open the upgrade shop", cat: "Shop"},
+                        {cmd: ".job", desc: "Pick a job (includes math trader)", cat: "Jobs"},
+                        {cmd: ".fun 8ball", desc: "Ask the magic 8ball", cat: "Fun"},
+                        {cmd: ".ai", desc: "Chat with AI", cat: "Fun"}
+                    ]
+                };
+                return cachedCommandsData;
+            }
+        }
+
+        function navigateTo(panel) {
+            // Hide all panels
+            document.querySelectorAll('[id^="panel-"]').forEach(p => p.style.display = 'none');
+            
+            // Show target
+            const target = document.getElementById('panel-' + panel);
+            if (target) target.style.display = 'block';
+            
+            // Update nav active states
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('nav-active');
+                link.classList.add('nav-inactive');
+                
+                if (link.id === 'nav-' + panel) {
+                    link.classList.add('nav-active');
+                    link.classList.remove('nav-inactive');
+                }
+            });
+            
+            currentPanel = panel;
+            
+            // Special init
+            if (panel === 'commands') {
+                renderRetroCommandsFromAPI();
+            }
+            if (panel === 'market') {
+                updateBigMarketPrice();
+            }
+        }
+
+        async function renderRetroCommandsFromAPI(filter = '') {
+            const container = document.getElementById('retro-commands-list');
+            container.innerHTML = '<div style="color:#666; padding:8px;">Loading commands from Redis...</div>';
+
+            const data = await fetchCommandsFromAPI();
+            container.innerHTML = '';
+
+            const f = filter.toLowerCase();
+
+            let itemsToShow = [];
+
+            if (data.type === 'categories' && data.data) {
+                // New format from bot (HELP_CATEGORIES)
+                Object.keys(data.data).forEach(catKey => {
+                    const cat = data.data[catKey];
+                    const catTitle = `${cat.emoji || ''} ${cat.title || catKey}`;
+
+                    // Category header
+                    const header = document.createElement('div');
+                    header.style.cssText = 'background:#2b2b2b; color:#9ccc9c; font-size:11px; padding:3px 6px; margin-top:6px; border:1px solid #3a3a3a;';
+                    header.textContent = catTitle;
+                    container.appendChild(header);
+
+                    (cat.commands || []).forEach(([cmd, desc]) => {
+                        if (filter && !cmd.toLowerCase().includes(f) && !desc.toLowerCase().includes(f)) return;
+                        itemsToShow.push({cmd, desc, cat: catKey});
+                        appendCommandRow(container, cmd, desc, catKey);
+                    });
+                });
+            } else if (data.type === 'flat' && Array.isArray(data.data)) {
+                data.data.filter(c =>
+                    !filter || c.cmd.toLowerCase().includes(f) || c.desc.toLowerCase().includes(f)
+                ).forEach(item => {
+                    appendCommandRow(container, item.cmd, item.desc, item.cat || 'Other');
+                });
+            } else {
+                container.innerHTML = '<div style="color:#f55; padding:10px;">No commands available. Bot has not synced yet.</div>';
+            }
+        }
+
+        function appendCommandRow(container, cmd, desc, cat) {
+            const div = document.createElement('div');
+            div.className = 'command-item';
+            div.innerHTML = `
+                <span style="font-family:monospace; color:#3cda56;">${cmd}</span>
+                <span style="color:#aaa; flex:1; padding:0 8px;">${desc}</span>
+                <span style="color:#555; font-size:10px;">${cat}</span>
+            `;
+            div.onclick = () => {
+                navigator.clipboard.writeText(cmd).then(() => {
+                    const old = div.innerHTML;
+                    div.innerHTML = `<span style="color:#3cda56;">✓ Copied ${cmd}</span>`;
+                    setTimeout(() => {
+                        if (div.parentNode) div.innerHTML = old;
+                    }, 1100);
+                }).catch(() => alert(cmd));
+            };
+            container.appendChild(div);
+        }
+
+        function filterRetroCommands() {
+            const val = document.getElementById('retro-search').value;
+            // re-render with current filter (re-fetches is fine, it's fast)
+            renderRetroCommandsFromAPI(val);
+        }
+
+        // Fishing demo (retro)
+        let retroFishingTimer = null;
+
+        function castRetroLine() {
+            const state = document.getElementById('retro-fish-state');
+            const result = document.getElementById('retro-catch');
+            
+            state.style.color = '#f59e0b';
+            state.innerHTML = 'Waiting for a bite...';
+            result.innerHTML = '';
+            
+            clearTimeout(retroFishingTimer);
+            
+            const wait = 700 + Math.random() * 1600;
+            
+            retroFishingTimer = setTimeout(() => {
+                state.style.color = '#3cda56';
+                state.innerHTML = '🐟 FISH ON THE LINE! Click to reel!';
+                
+                const reelHandler = () => {
+                    state.onclick = null;
+                    state.innerHTML = 'Reeling in...';
+                    
+                    setTimeout(() => {
+                        const fishTypes = [
+                            {name:'Carp', val:8}, {name:'Trout', val:14}, {name:'Salmon', val:23},
+                            {name:'Tuna', val:38}, {name:'Shark', val:67}, {name:'Golden Koi', val:128}
+                        ];
+                        const f = fishTypes[Math.floor(Math.random() * fishTypes.length)];
+                        const amt = Math.floor(f.val * (0.7 + Math.random() * 0.8));
+                        const cr = Math.floor(amt * currentMarketPrice * 0.9);
+                        
+                        result.innerHTML = `<span style="color:#3cda56;">+${amt} ${f.name}</span> <span style="color:#f59e0b;">+${cr} credits</span>`;
+                        
+                        state.innerHTML = 'Nice catch!';
+                        setTimeout(() => {
+                            state.innerHTML = 'Ready to fish...';
+                            state.style.color = '#3cda56';
+                            result.innerHTML = '';
+                        }, 2400);
+                    }, 650);
+                };
+                
+                state.onclick = reelHandler;
+            }, wait);
+        }
+
+        // Market simulator
+        function updateBigMarketPrice() {
+            const el = document.getElementById('big-market-price');
+            if (el) el.textContent = currentMarketPrice;
+        }
+
+        function retroFluctuateMarket(manual = false) {
+            const old = currentMarketPrice;
+            const delta = Math.floor(Math.random() * 9) - 3.5;
+            currentMarketPrice = Math.max(6, Math.min(39, currentMarketPrice + delta));
+            
+            const pct = Math.round(((currentMarketPrice - old) / old) * 100);
+            
+            // Update all displays
+            const small = document.getElementById('retro-market-price');
+            if (small) small.textContent = currentMarketPrice;
+            
+            const big = document.getElementById('big-market-price');
+            if (big) big.textContent = currentMarketPrice;
+            
+            const pctEl = document.getElementById('retro-market-pct');
+            if (pctEl) {
+                pctEl.textContent = (pct > 0 ? '+' : '') + pct + '%';
+                pctEl.style.color = pct > 0 ? '#3cda56' : '#f87171';
+            }
+            
+            // flash effect
+            if (small) {
+                small.style.transition = 'none';
+                small.style.transform = 'scale(0.6)';
+                setTimeout(() => {
+                    small.style.transition = 'all .2s';
+                    small.style.transform = 'scale(1)';
+                }, 20);
+            }
+        }
+
+        // Actions
+        function addToDiscord() {
+            window.open('https://discord.com/oauth2/authorize?client_id=1447869784937988201&permissions=8&integration_type=0&scope=bot+applications.commands', '_blank');
+        }
+        
+        function joinSupport() {
+            window.open('https://discord.gg/YWG5ryEZGS', '_blank');
+        }
+
+        // Keyboard shortcut for search when on commands
+        function setupRetroKeyboard() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && currentPanel === 'commands') {
+                    e.preventDefault();
+                    const s = document.getElementById('retro-search');
+                    if (s) s.focus();
+                }
+            });
+            
+            // Initial market tick
+            setInterval(() => {
+                if (Math.random() < 0.35 && document.visibilityState === 'visible') {
+                    const small = document.getElementById('retro-market-price');
+                    if (small && currentPanel === 'demo') {
+                        retroFluctuateMarket(false);
+                    }
+                }
+            }, 22000);
+        }
+
+        function initializeRetroSite() {
+            // Start on home
+            document.getElementById('panel-home').style.display = 'block';
+            document.getElementById('nav-home').classList.add('nav-active');
+            
+            // Seed initial market
+            document.getElementById('retro-market-price').textContent = currentMarketPrice;
+            
+            // Random initial market tick
+            setTimeout(() => {
+                if (currentMarketPrice === 18) retroFluctuateMarket(false);
+            }, 1800);
+            
+            setupRetroKeyboard();
+            
+            // Make first nav active already set
+            console.log('%c[FishR] Retro Windows Longhorn style website initialized.', 'color:#3cda56');
+        }
+
+        window.onload = initializeRetroSite;
+    </script>
+</body>
+</html>

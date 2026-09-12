@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'Static site with serverless functions - no build step'",
+  "outputDirectory": ".",
+  "framework": null,
+  "devCommand": "vercel dev"
+}
